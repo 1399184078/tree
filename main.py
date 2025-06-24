@@ -6,6 +6,7 @@ import cv2
 import io
 import requests
 import base64
+from fastapi.responses import JSONResponse
 
 
 app = FastAPI()
