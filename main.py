@@ -28,11 +28,8 @@ class UrlRequest(BaseModel):
 
 @app.post("/process_url")
 async def process_from_url(req: UrlRequest):
-    url = req.url
-    method = req.method
-
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(req.url, timeout=5)
         response.raise_for_status()
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"下载图像失败: {e}")
@@ -46,9 +43,10 @@ async def process_from_url(req: UrlRequest):
     if img is None:
         raise HTTPException(status_code=400, detail="无法解码图像")
 
-    result = process_core(img, method)
+    result = process_core(img, req.method)
     _, buffer = cv2.imencode(".png", result)
-    return StreamingResponse(io.BytesIO(buffer.tobytes()), media_type="image/png")
+    image_base64 = base64.b64encode(buffer).decode("utf-8")
+    return JSONResponse(content={"image_base64": image_base64})
 
 def process_core(img, method):
     if method == "canny":
