@@ -52,10 +52,35 @@ async def process_from_url(req: UrlRequest):
     return JSONResponse(content={"image_base64": image_base64})
 
 def process_core(img, method):
-    if method == "canny":
+    method = method.lower()
+
+    if method == "gray":
+        return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    elif method == "binary":
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+        return binary
+
+    elif method == "mean":
+        return cv2.blur(img, (5, 5))
+
+    elif method == "median":
+        return cv2.medianBlur(img, 5)
+
+    elif method == "canny":
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         return cv2.Canny(gray, 100, 200)
-    elif method == "blur":
-        return cv2.GaussianBlur(img, (15, 15), 0)
+
+    elif method == "equalize":
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        return cv2.equalizeHist(gray)
+
+    elif method == "segment":
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        _, segmented = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        return segmented
+
     else:
         return img
+
