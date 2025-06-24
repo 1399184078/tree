@@ -4,4 +4,3 @@ opencv-python
 numpy
 python-multipart
 requests
-base64
