@@ -5,6 +5,8 @@ import numpy as np
 import cv2
 import io
 import requests
+import base64
+
 
 app = FastAPI()
 
