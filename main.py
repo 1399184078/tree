@@ -77,36 +77,36 @@ def process_core(img, method):
         return cv2.equalizeHist(gray)
 
     elif method == "segment_otsu":
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    _, segmented = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    return segmented
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        _, segmented = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        return segmented
 
     elif method == "segment_grow":
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    h, w = gray.shape
-    visited = np.zeros((h, w), np.uint8)
-    output = np.zeros((h, w), np.uint8)
-
-    # 设置一个默认的种子点（例如图像中心）
-    seed = (h // 2, w // 2)
-    threshold = 10
-    seed_val = int(gray[seed])
-
-    stack = [seed]
-    visited[seed] = 1
-    output[seed] = 255
-
-    while stack:
-        y, x = stack.pop()
-        for dy in [-1, 0, 1]:
-            for dx in [-1, 0, 1]:
-                ny, nx = y + dy, x + dx
-                if 0 <= ny < h and 0 <= nx < w and visited[ny, nx] == 0:
-                    if abs(int(gray[ny, nx]) - seed_val) < threshold:
-                        visited[ny, nx] = 1
-                        output[ny, nx] = 255
-                        stack.append((ny, nx))
-    return output
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        h, w = gray.shape
+        visited = np.zeros((h, w), np.uint8)
+        output = np.zeros((h, w), np.uint8)
+    
+        # 设置一个默认的种子点（例如图像中心）
+        seed = (h // 2, w // 2)
+        threshold = 10
+        seed_val = int(gray[seed])
+    
+        stack = [seed]
+        visited[seed] = 1
+        output[seed] = 255
+    
+        while stack:
+            y, x = stack.pop()
+            for dy in [-1, 0, 1]:
+                for dx in [-1, 0, 1]:
+                    ny, nx = y + dy, x + dx
+                    if 0 <= ny < h and 0 <= nx < w and visited[ny, nx] == 0:
+                        if abs(int(gray[ny, nx]) - seed_val) < threshold:
+                            visited[ny, nx] = 1
+                            output[ny, nx] = 255
+                            stack.append((ny, nx))
+        return output
     
     else:
         return img
