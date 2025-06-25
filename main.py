@@ -5,13 +5,10 @@ import numpy as np
 import cv2
 import io
 import requests
-import base64
-from fastapi.responses import JSONResponse
-
 
 app = FastAPI()
 
-# 上传图像文件方式（保持不变）
+# 上传图像文件方式
 @app.post("/process")
 async def process_image(file: UploadFile = File(...), method: str = "canny"):
     contents = await file.read()
@@ -24,7 +21,7 @@ async def process_image(file: UploadFile = File(...), method: str = "canny"):
     _, buffer = cv2.imencode(".png", result)
     return StreamingResponse(io.BytesIO(buffer.tobytes()), media_type="image/png")
 
-# JSON 请求体版本的 URL 下载接口
+# JSON 请求体版本的 URL 下载接口，返回 StreamingResponse（图像文件流）
 class UrlRequest(BaseModel):
     url: str
     method: str = "canny"
@@ -48,9 +45,9 @@ async def process_from_url(req: UrlRequest):
 
     result = process_core(img, req.method)
     _, buffer = cv2.imencode(".png", result)
-    image_base64 = base64.b64encode(buffer).decode("utf-8")
-    return JSONResponse(content={"image_base64": image_base64})
+    return StreamingResponse(io.BytesIO(buffer.tobytes()), media_type="image/png")
 
+# 图像处理核心函数
 def process_core(img, method):
     method = method.lower()
 
@@ -87,7 +84,6 @@ def process_core(img, method):
         visited = np.zeros((h, w), np.uint8)
         output = np.zeros((h, w), np.uint8)
     
-        # 设置一个默认的种子点（例如图像中心）
         seed = (h // 2, w // 2)
         threshold = 10
         seed_val = int(gray[seed])
@@ -110,4 +106,3 @@ def process_core(img, method):
     
     else:
         return img
-
